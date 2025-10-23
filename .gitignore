@@ -1,0 +1,67 @@
+# ========================================
+# Android / IntelliJ / Gradle Gitignore
+# ========================================
+
+# Build directories
+/build/
+**/build/
+**/out/
+
+# Gradle
+.gradle/
+gradle-app.setting
+gradle.properties
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+/local.properties
+
+# Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea/caches
+.idea/libraries
+.idea/modules.xml
+.idea/workspace.xml
+.idea/assetWizardSettings.xml
+.idea/navEditor.xml
+.idea/misc.xml
+.idea/vcs.xml
+
+# Generated files
+captures/
+output.json
+*.apk
+*.ap_ 
+*.aab
+
+# Logs
+*.log
+
+# Keystore files (importante: nunca subir tu firma)
+*.jks
+*.keystore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Other IDEs
+.vscode/
+*.swp
+
+# Temporary
+*.tmp
+*.temp
+
+# Crashlytics / Firebase
+fabric.properties
+crashlytics-build.properties
+
+# Jetpack Compose preview cache
+/.preview/
+
+# ========================================
+# END
+# ========================================
