@@ -62,6 +62,10 @@ crashlytics-build.properties
 # Jetpack Compose preview cache
 /.preview/
 
+
+# Firebase config 
+app/google-services.json
+
 # ========================================
 # END
 # ========================================
