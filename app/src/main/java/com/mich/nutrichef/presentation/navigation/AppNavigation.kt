@@ -5,9 +5,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.*
-import com.mich.nutrichef.presentation.screen.InicioScreen
-import com.mich.nutrichef.presentation.screen.PerfilScreen
-import com.mich.nutrichef.presentation.screen.TipsNutricionalesScreen
+import com.mich.nutrichef.presentation.screen.main.InicioScreen
+import com.mich.nutrichef.presentation.screen.main.PerfilScreen
+import com.mich.nutrichef.presentation.screen.main.TipsNutricionalesScreen
 
 @Composable
 fun AppNavigation() {
