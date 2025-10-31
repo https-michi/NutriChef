@@ -19,13 +19,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mich.nutrichef.data.remote.firebase.FirebaseAuthService
 import com.mich.nutrichef.ui.theme.NutriChefTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(
-    onNavigateToLogin: () -> Unit = {},
-    onRegisterSuccess: () -> Unit = {}
+    onNavigateToLogin: () -> Unit = {}, onRegisterSuccess: () -> Unit = {}
 ) {
+    //Autht
+    val firebaseAuthService = remember { FirebaseAuthService() }
+    val scope = rememberCoroutineScope()
+    //
     val context = LocalContext.current
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -33,8 +38,7 @@ fun RegisterScreen(
     var confirmPassword by remember { mutableStateOf("") }
 
     Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFF5F5F5)
+        modifier = Modifier.fillMaxSize(), color = Color(0xFFF5F5F5)
     ) {
         Column(
             modifier = Modifier
@@ -50,13 +54,11 @@ fun RegisterScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = Color(0xFF5CD6C8)
+                    modifier = Modifier.fillMaxSize(), color = Color(0xFF5CD6C8)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
-                            text = "🍽️",
-                            fontSize = 40.sp
+                            text = "🍽️", fontSize = 40.sp
                         )
                     }
                 }
@@ -72,9 +74,7 @@ fun RegisterScreen(
             )
 
             Text(
-                text = "Comienza tu viaje saludable",
-                fontSize = 14.sp,
-                color = Color.Gray
+                text = "Comienza tu viaje saludable", fontSize = 14.sp, color = Color.Gray
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -99,8 +99,7 @@ fun RegisterScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF5CD6C8),
-                    unfocusedBorderColor = Color.LightGray
+                    focusedBorderColor = Color(0xFF5CD6C8), unfocusedBorderColor = Color.LightGray
                 ),
                 singleLine = true
             )
@@ -127,8 +126,7 @@ fun RegisterScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF5CD6C8),
-                    unfocusedBorderColor = Color.LightGray
+                    focusedBorderColor = Color(0xFF5CD6C8), unfocusedBorderColor = Color.LightGray
                 ),
                 singleLine = true
             )
@@ -156,8 +154,7 @@ fun RegisterScreen(
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF5CD6C8),
-                    unfocusedBorderColor = Color.LightGray
+                    focusedBorderColor = Color(0xFF5CD6C8), unfocusedBorderColor = Color.LightGray
                 ),
                 singleLine = true
             )
@@ -185,8 +182,7 @@ fun RegisterScreen(
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF5CD6C8),
-                    unfocusedBorderColor = Color.LightGray
+                    focusedBorderColor = Color(0xFF5CD6C8), unfocusedBorderColor = Color.LightGray
                 ),
                 singleLine = true
             )
@@ -203,9 +199,7 @@ fun RegisterScreen(
 
                         password != confirmPassword -> {
                             Toast.makeText(
-                                context,
-                                "Las contraseñas no coinciden",
-                                Toast.LENGTH_SHORT
+                                context, "Las contraseñas no coinciden", Toast.LENGTH_SHORT
                             ).show()
                         }
 
@@ -217,8 +211,28 @@ fun RegisterScreen(
                             ).show()
                         }
 
+//                        else -> {
+//                            onRegisterSuccess()
+//                        }
                         else -> {
-                            onRegisterSuccess()
+                            scope.launch {
+                                val result =
+                                    firebaseAuthService.registerUser(fullName, email, password)
+                                if (result.isSuccess) {
+                                    Toast.makeText(
+                                        context,
+                                        "Usuario registrado con éxito",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    onRegisterSuccess()
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Error: ${result.exceptionOrNull()?.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
                         }
                     }
                 },
@@ -246,9 +260,7 @@ fun RegisterScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "¿Ya tienes cuenta? ",
-                    color = Color.Gray,
-                    fontSize = 14.sp
+                    text = "¿Ya tienes cuenta? ", color = Color.Gray, fontSize = 14.sp
                 )
                 TextButton(
                     onClick = { onNavigateToLogin() },

@@ -65,7 +65,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
 //    implementation("com.google.firebase:firebase-auth-ktx")
-//    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-firestore:26.0.2")
 
     // Accompanist - Para el ViewPager
     implementation("com.google.accompanist:accompanist-pager:0.32.0")
