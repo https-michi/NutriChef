@@ -1,4 +1,4 @@
-package com.mich.nutrichef
+package com.mich.nutrichef.presentation.screen.register
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*

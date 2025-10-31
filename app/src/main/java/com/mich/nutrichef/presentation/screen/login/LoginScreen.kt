@@ -1,4 +1,4 @@
-package com.mich.nutrichef
+package com.mich.nutrichef.presentation.screen.login
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mich.nutrichef.R
 import com.mich.nutrichef.ui.theme.NutriChefTheme
 
 @Composable
