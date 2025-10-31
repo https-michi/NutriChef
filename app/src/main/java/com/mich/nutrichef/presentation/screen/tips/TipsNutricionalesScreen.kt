@@ -1,4 +1,4 @@
-package com.mich.nutrichef.presentation.screen.main
+package com.mich.nutrichef.presentation.screen.tips
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,11 +9,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun PerfilScreen() {
+fun TipsNutricionalesScreen() {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
     ) {
-        Text("Pantalla de Inicio", style = MaterialTheme.typography.headlineMedium)
+        Text("Tips Nutricionales", style = MaterialTheme.typography.headlineMedium)
     }
 }
+

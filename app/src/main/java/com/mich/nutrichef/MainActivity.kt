@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxSize
+import com.mich.nutrichef.presentation.screen.onboarding.OnboardingScreen
 import com.mich.nutrichef.ui.theme.NutriChefTheme
 
 class MainActivity : ComponentActivity() {

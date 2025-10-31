@@ -1,8 +1,7 @@
-package com.mich.nutrichef
+package com.mich.nutrichef.presentation.screen.onboarding
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -17,6 +16,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.*
+import com.mich.nutrichef.presentation.screen.onboarding.OnboardingData
+import com.mich.nutrichef.domain.model.OnboardingPage
 import com.mich.nutrichef.ui.theme.BackgroundLight
 import com.mich.nutrichef.ui.theme.TealPrimary
 import com.mich.nutrichef.ui.theme.TextSecondary

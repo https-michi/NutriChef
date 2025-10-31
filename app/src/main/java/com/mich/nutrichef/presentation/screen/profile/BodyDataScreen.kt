@@ -1,4 +1,4 @@
-package com.mich.nutrichef
+package com.mich.nutrichef.presentation.screen.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

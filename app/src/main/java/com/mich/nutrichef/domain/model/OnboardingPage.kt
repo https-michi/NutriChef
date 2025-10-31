@@ -1,4 +1,4 @@
-package com.mich.nutrichef
+package com.mich.nutrichef.domain.model
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

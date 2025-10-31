@@ -1,4 +1,4 @@
-package com.mich.nutrichef.presentation.screen.main
+package com.mich.nutrichef.presentation.screen.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

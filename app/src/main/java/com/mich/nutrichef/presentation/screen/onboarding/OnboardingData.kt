@@ -1,10 +1,10 @@
-package com.mich.nutrichef
+package com.mich.nutrichef.presentation.screen.onboarding
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
-import com.mich.nutrichef.OnboardingPage
+import com.mich.nutrichef.domain.model.OnboardingPage
 
 object OnboardingData {
     val pages = listOf(
