@@ -62,7 +62,10 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 //     Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
+    implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
+//    implementation("com.google.firebase:firebase-auth-ktx")
+//    implementation("com.google.firebase:firebase-firestore-ktx")
 
     // Accompanist - Para el ViewPager
     implementation("com.google.accompanist:accompanist-pager:0.32.0")

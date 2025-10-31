@@ -251,7 +251,7 @@ fun RegisterScreen(
                     fontSize = 14.sp
                 )
                 TextButton(
-                    onClick = onNavigateToLogin,
+                    onClick = { onNavigateToLogin() },
                     contentPadding = PaddingValues(0.dp),
                     modifier = Modifier.offset(x = (-8).dp)
                 ) {

@@ -8,14 +8,33 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxSize
-import com.mich.nutrichef.presentation.screen.onboarding.OnboardingScreen
+import com.google.firebase.auth.FirebaseAuth
+import com.mich.nutrichef.presentation.navigation.AppNavigation
 import com.mich.nutrichef.ui.theme.NutriChefTheme
 
+//class MainActivity : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        enableEdgeToEdge()
+//
+//        setContent {
+//            NutriChefTheme {
+//                AppNavigation()
+//            }
+//        }
+//    }
+//}
+//
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val startDestination = if (FirebaseAuth.getInstance().currentUser != null) {
+            "main"
+        } else {
+            "auth"
+        }
 
         setContent {
             NutriChefTheme {
@@ -23,14 +42,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-//                    BodyDataScreen(
-//                        onContinue = { weight, height ->
-//                        }
-//                    )
-                    OnboardingScreen(
-                        onFinish = {
-                        }
-                    )
+                    AppNavigation(startDestination = startDestination)
                 }
             }
         }
