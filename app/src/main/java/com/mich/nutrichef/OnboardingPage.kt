@@ -1,4 +1,4 @@
-package com.mich.nutrichef.model
+package com.mich.nutrichef
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

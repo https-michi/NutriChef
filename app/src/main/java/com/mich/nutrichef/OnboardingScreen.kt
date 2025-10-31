@@ -13,11 +13,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.*
-import com.mich.nutrichef.data.OnboardingData
-import com.mich.nutrichef.model.OnboardingPage
 import com.mich.nutrichef.ui.theme.BackgroundLight
 import com.mich.nutrichef.ui.theme.TealPrimary
 import com.mich.nutrichef.ui.theme.TextSecondary
@@ -170,4 +169,12 @@ fun OnboardingPageContent(
             lineHeight = 24.sp
         )
     }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun OnboardingScreenPreview() {
+    OnboardingScreen(
+        onFinish = {}
+    )
 }
