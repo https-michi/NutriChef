@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -13,7 +13,7 @@ import com.mich.nutrichef.presentation.screen.profile.PerfilScreen
 import com.mich.nutrichef.presentation.screen.tips.TipsNutricionalesScreen
 
 @Composable
-fun MainScreen() {
+fun MainScreen(rootNavController: NavController) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -26,7 +26,31 @@ fun MainScreen() {
         ) {
             composable("inicio") { InicioScreen() }
             composable("tipsNutricionales") { TipsNutricionalesScreen() }
-            composable("perfil") { PerfilScreen() }
+//            composable("perfil") { PerfilScreen() }
+            composable("perfil") {
+                PerfilScreen(
+                    navController = navController,
+                    rootNavController = rootNavController
+                )
+            }
+
         }
     }
 }
+//@Composable
+//fun MainScreen(navController: NavHostController) {
+//    Scaffold(
+//        bottomBar = { BottomNavigationBar(navController) }
+//    ) { innerPadding ->
+//        NavHost(
+//            navController = navController,
+//            startDestination = "inicio",
+//            modifier = Modifier.padding(innerPadding)
+//        ) {
+//            composable("inicio") { InicioScreen() }
+//            composable("tipsNutricionales") { TipsNutricionalesScreen() }
+//            composable("perfil") { PerfilScreen(navController) }
+//        }
+//    }
+//}
+
