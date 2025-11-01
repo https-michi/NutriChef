@@ -10,29 +10,20 @@ import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import androidx.navigation.NavController
 
-
 @Composable
 fun PerfilScreen(
-    navController: NavController,
-    rootNavController: NavController
+    onLogout: () -> Unit
 ) {
     var currentUser by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
-    var isLoading by remember { mutableStateOf(true) }
 
     DisposableEffect(Unit) {
         val authListener = FirebaseAuth.AuthStateListener { auth ->
             currentUser = auth.currentUser
-            isLoading = false
             Log.d("PERFILLLL", "Auth listener - currentUser: $currentUser")
             Log.d("PERFILLLL", "Auth listener - email: ${currentUser?.email}")
-            Log.d("PERFILLLL", "Auth listener - displayName: ${currentUser?.displayName}")
         }
 
         FirebaseAuth.getInstance().addAuthStateListener(authListener)
-        currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser != null && currentUser?.email != null) {
-            isLoading = false
-        }
 
         onDispose {
             FirebaseAuth.getInstance().removeAuthStateListener(authListener)
@@ -44,16 +35,11 @@ fun PerfilScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         when {
-            isLoading -> {
-                CircularProgressIndicator()
-            }
-
             currentUser == null -> {
                 LaunchedEffect(Unit) {
-                    rootNavController.navigate("auth") {
-                        popUpTo(0) { inclusive = true }
-                    }
+                    onLogout()
                 }
+                CircularProgressIndicator()
             }
 
             else -> {
@@ -63,7 +49,8 @@ fun PerfilScreen(
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
                         text = "Bienvenido, $nombre",
@@ -71,17 +58,12 @@ fun PerfilScreen(
                     )
 
                     Button(
-                        onClick = {
-                            FirebaseAuth.getInstance().signOut()
-                            rootNavController.navigate("auth") {
-                                popUpTo(0) { inclusive = true }
-                            }
-                        }
+                        onClick = onLogout
                     ) {
                         Text("Cerrar Sesión")
                     }
 
-                    Card(modifier = Modifier.padding(16.dp)) {
+                    Card(modifier = Modifier.fillMaxWidth()) {
                         Column(
                             modifier = Modifier.padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
