@@ -33,4 +33,31 @@ class FirebaseAuthService(
             Result.failure(e)
         }
     }
+
+    suspend fun loginUser(
+        email: String,
+        password: String
+    ): Result<Unit> {
+        return try {
+            auth.signInWithEmailAndPassword(email, password).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun resetPassword(email: String): Result<Unit> {
+        return try {
+            auth.sendPasswordResetEmail(email).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    fun logout() {
+        auth.signOut()
+    }
+
+    fun getCurrentUser() = auth.currentUser
 }

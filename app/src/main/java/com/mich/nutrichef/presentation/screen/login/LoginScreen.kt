@@ -1,5 +1,6 @@
 package com.mich.nutrichef.presentation.screen.login
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -11,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -18,13 +20,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mich.nutrichef.R
+import com.mich.nutrichef.data.remote.firebase.FirebaseAuthService
 import com.mich.nutrichef.ui.theme.NutriChefTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit = {},
     onLoginSuccess: () -> Unit = {}
 ) {
+    val firebaseAuthService = remember { FirebaseAuthService() }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(false) }
+    var showResetPasswordDialog by remember { mutableStateOf(false) }
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -133,7 +143,10 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            TextButton(onClick = { }) {
+            TextButton(
+                onClick = { showResetPasswordDialog = true },
+                enabled = !isLoading
+            ) {
                 Text(
                     text = "¿Olvidaste tu contraseña?",
                     color = Color(0xFF5CD6C8),
@@ -143,22 +156,88 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+//            Button(
+//                onClick = { },
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(50.dp),
+//                colors = ButtonDefaults.buttonColors(
+//                    containerColor = Color(0xFF5CD6C8)
+//                ),
+//                shape = MaterialTheme.shapes.medium
+//            ) {
+//                Text(
+//                    text = "Iniciar sesión",
+//                    fontSize = 16.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    color = Color.White
+//                )
+//            }
             Button(
-                onClick = { },
+                onClick = {
+                    when {
+                        email.isEmpty() || password.isEmpty() -> {
+                            Toast.makeText(
+                                context,
+                                "Completa todos los campos",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        else -> {
+                            isLoading = true
+                            scope.launch {
+                                val result = firebaseAuthService.loginUser(email, password)
+                                isLoading = false
+
+                                if (result.isSuccess) {
+                                    Toast.makeText(
+                                        context,
+                                        "Inicio de sesión exitoso",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    onLoginSuccess()
+                                } else {
+                                    val errorMessage = when (result.exceptionOrNull()?.message) {
+                                        "The email address is badly formatted." ->
+                                            "Formato de email inválido"
+
+                                        "The password is invalid or the user does not have a password." ->
+                                            "Contraseña incorrecta"
+
+                                        "There is no user record corresponding to this identifier. The user may have been deleted." ->
+                                            "Usuario no encontrado"
+
+                                        else -> "Error: ${result.exceptionOrNull()?.message}"
+                                    }
+                                    Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF5CD6C8)
                 ),
-                shape = MaterialTheme.shapes.medium
+                shape = MaterialTheme.shapes.medium,
+                enabled = !isLoading
             ) {
-                Text(
-                    text = "Iniciar sesión",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        text = "Iniciar sesión",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -236,6 +315,30 @@ fun LoginScreen(
             }
         }
     }
+    if (showResetPasswordDialog) {
+        ResetPasswordDialog(
+            onDismiss = { showResetPasswordDialog = false },
+            onConfirm = { resetEmail ->
+                scope.launch {
+                    val result = firebaseAuthService.resetPassword(resetEmail)
+                    if (result.isSuccess) {
+                        Toast.makeText(
+                            context,
+                            "Email de recuperación enviado",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Error: ${result.exceptionOrNull()?.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    showResetPasswordDialog = false
+                }
+            }
+        )
+    }
 }
 
 @Preview(showBackground = true)
@@ -244,4 +347,43 @@ fun LoginScreenPreview() {
     NutriChefTheme {
         LoginScreen()
     }
+}
+
+@Composable
+fun ResetPasswordDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var email by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Recuperar contraseña") },
+        text = {
+            Column {
+                Text("Ingresa tu email y te enviaremos un enlace para resetear tu contraseña.")
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    placeholder = { Text("tu@email.com") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(email) },
+                enabled = email.isNotEmpty()
+            ) {
+                Text("Enviar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
 }
