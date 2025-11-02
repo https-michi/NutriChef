@@ -1,5 +1,6 @@
 package com.mich.nutrichef.presentation.screen.profile
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,18 +13,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mich.nutrichef.data.remote.firebase.FirebaseAuthService
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BodyDataScreen(
     onContinue: (weight: Float, height: Float) -> Unit
 ) {
+    val firebaseAuthService = remember { FirebaseAuthService() }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(false) }
+
     var weight by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
@@ -213,7 +221,29 @@ fun BodyDataScreen(
                             val heightFloat = height.replace(",", ".").toFloat()
 
                             if (weightFloat > 0 && heightFloat > 0) {
-                                onContinue(weightFloat, heightFloat)
+                                isLoading = true
+                                scope.launch {
+                                    val result = firebaseAuthService.completeProfile(
+                                        weightFloat.toDouble(),
+                                        heightFloat.toDouble()
+                                    )
+                                    isLoading = false
+
+                                    if (result.isSuccess) {
+                                        Toast.makeText(
+                                            context,
+                                            "Perfil completado",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        onContinue(weightFloat, heightFloat)
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Error: ${result.exceptionOrNull()?.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
                             } else {
                                 showError = true
                             }
@@ -233,13 +263,21 @@ fun BodyDataScreen(
                     contentColor = Color.White,
                     disabledContainerColor = Color(0xFFD1D5DB),
                     disabledContentColor = Color(0xFF9CA3AF)
-                )
+                ),
+                enabled = !isLoading
             ) {
-                Text(
-                    text = "Continuar",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        text = "Continuar",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))

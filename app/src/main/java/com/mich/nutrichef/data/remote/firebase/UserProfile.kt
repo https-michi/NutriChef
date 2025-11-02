@@ -10,6 +10,7 @@ data class UserProfile(
     val edad: Int? = null,
     val peso: Double? = null,
     val altura: Double? = null,
+    val isProfileComplete: Boolean = false,
     val platoMasVisto: String? = null,
     val cantPlatosVistos: Int = 0,
     val favoritos: List<String> = emptyList(),

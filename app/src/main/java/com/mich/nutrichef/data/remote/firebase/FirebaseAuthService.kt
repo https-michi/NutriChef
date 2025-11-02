@@ -21,7 +21,8 @@ class FirebaseAuthService(
             val profile = UserProfile(
                 idUsuario = uid,
                 nombre = fullName,
-                email = email
+                email = email,
+                isProfileComplete = false
             )
             firestore.collection("usuarios")
                 .document(uid)
@@ -34,6 +35,44 @@ class FirebaseAuthService(
         }
     }
 
+    // --- esto estaa para cambiar de lugar
+    suspend fun completeProfile(weight: Double, height: Double): Result<Unit> {
+        return try {
+            val uid = auth.currentUser?.uid ?: throw Exception("No hay usuario")
+
+            firestore.collection("usuarios")
+                .document(uid)
+                .update(
+                    mapOf(
+                        "peso" to weight,
+                        "altura" to height,
+                        "isProfileComplete" to true
+                    )
+                )
+                .await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun isProfileComplete(): Result<Boolean> {
+        return try {
+            val uid = auth.currentUser?.uid ?: throw Exception("No hay usuario")
+            val doc = firestore.collection("usuarios")
+                .document(uid)
+                .get()
+                .await()
+
+            val isComplete = doc.getBoolean("isProfileComplete") ?: false
+            Result.success(isComplete)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    ///
     suspend fun loginUser(
         email: String,
         password: String

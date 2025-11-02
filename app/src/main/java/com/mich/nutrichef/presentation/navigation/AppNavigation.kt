@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.mich.nutrichef.presentation.screen.home.MainScreen
 import com.mich.nutrichef.presentation.screen.login.LoginScreen
 import com.mich.nutrichef.presentation.screen.onboarding.OnboardingScreen
+import com.mich.nutrichef.presentation.screen.profile.BodyDataScreen
 import com.mich.nutrichef.presentation.screen.register.RegisterScreen
 
 @Composable
@@ -54,19 +55,41 @@ private fun NavGraphBuilder.authGraph(navController: NavController) {
                 }
             )
         }
-
         composable("register") {
             RegisterScreen(
                 onNavigateToLogin = {
                     navController.navigate("login")
                 },
                 onRegisterSuccess = {
-                    navController.navigate("main") {
+                    navController.navigate("complete_profile") {
                         popUpTo("auth") { inclusive = true }
                     }
                 }
             )
         }
+
+        composable("complete_profile") {
+            BodyDataScreen(
+                onContinue = { weight, height ->
+                    navController.navigate("main") {
+                        popUpTo("complete_profile") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+//        composable("register") {
+//            RegisterScreen(
+//                onNavigateToLogin = {
+//                    navController.navigate("login")
+//                },
+//                onRegisterSuccess = {
+//                    navController.navigate("main") {
+//                        popUpTo("auth") { inclusive = true }
+//                    }
+//                }
+//            )
+//        }
     }
 }
 
