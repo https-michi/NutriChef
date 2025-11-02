@@ -20,17 +20,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mich.nutrichef.data.remote.firebase.AuthViewModel
 import com.mich.nutrichef.data.remote.firebase.FirebaseAuthService
 import kotlinx.coroutines.launch
 
 @Composable
 fun BodyDataScreen(
+    authViewModel: AuthViewModel,
     onContinue: (weight: Float, height: Float) -> Unit
 ) {
-    val firebaseAuthService = remember { FirebaseAuthService() }
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    var isLoading by remember { mutableStateOf(false) }
+    val isLoading by authViewModel.isLoading.collectAsState()
 
     var weight by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
@@ -129,7 +129,8 @@ fun BodyDataScreen(
                     ),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
-                    isError = showError && weight.isBlank()
+                    isError = showError && weight.isBlank(),
+                    enabled = !isLoading
                 )
             }
 
@@ -165,14 +166,15 @@ fun BodyDataScreen(
                     ),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
-                    isError = showError && height.isBlank()
+                    isError = showError && height.isBlank(),
+                    enabled = !isLoading
                 )
             }
 
             if (showError) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Por favor completa todos los campos",
+                    text = "Por favor completa todos los campos correctamente",
                     color = Color(0xFFEF4444),
                     fontSize = 14.sp,
                     modifier = Modifier.fillMaxWidth()
@@ -220,35 +222,41 @@ fun BodyDataScreen(
                             val weightFloat = weight.replace(",", ".").toFloat()
                             val heightFloat = height.replace(",", ".").toFloat()
 
-                            if (weightFloat > 0 && heightFloat > 0) {
-                                isLoading = true
-                                scope.launch {
-                                    val result = firebaseAuthService.completeProfile(
-                                        weightFloat.toDouble(),
-                                        heightFloat.toDouble()
-                                    )
-                                    isLoading = false
-
+                            if (weightFloat > 0 && weightFloat < 300 && heightFloat > 0 && heightFloat < 300) {
+                                authViewModel.completeProfile(
+                                    weightFloat.toDouble(),
+                                    heightFloat.toDouble()
+                                ) { result ->
                                     if (result.isSuccess) {
                                         Toast.makeText(
                                             context,
-                                            "Perfil completado",
+                                            "Perfil completado exitosamente",
                                             Toast.LENGTH_SHORT
                                         ).show()
                                         onContinue(weightFloat, heightFloat)
                                     } else {
                                         Toast.makeText(
                                             context,
-                                            "Error: ${result.exceptionOrNull()?.message}",
-                                            Toast.LENGTH_SHORT
+                                            "Error al guardar: ${result.exceptionOrNull()?.message}",
+                                            Toast.LENGTH_LONG
                                         ).show()
                                     }
                                 }
                             } else {
                                 showError = true
+                                Toast.makeText(
+                                    context,
+                                    "Valores fuera de rango válido",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         } catch (e: NumberFormatException) {
                             showError = true
+                            Toast.makeText(
+                                context,
+                                "Por favor ingresa números válidos",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     } else {
                         showError = true
@@ -269,7 +277,8 @@ fun BodyDataScreen(
                 if (isLoading) {
                     CircularProgressIndicator(
                         color = Color.White,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
                     )
                 } else {
                     Text(
@@ -285,10 +294,10 @@ fun BodyDataScreen(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun BodyDataScreenPreview() {
-    BodyDataScreen(
-        onContinue = { _, _ -> }
-    )
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun BodyDataScreenPreview() {
+//    BodyDataScreen(
+//        onContinue = { _, _ -> }
+//    )
+//}

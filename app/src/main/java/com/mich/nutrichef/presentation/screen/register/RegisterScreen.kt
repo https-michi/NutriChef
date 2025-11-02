@@ -19,19 +19,26 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mich.nutrichef.data.remote.firebase.AuthViewModel
 import com.mich.nutrichef.data.remote.firebase.FirebaseAuthService
 import com.mich.nutrichef.ui.theme.NutriChefTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(
-    onNavigateToLogin: () -> Unit = {}, onRegisterSuccess: () -> Unit = {}
+    authViewModel: AuthViewModel,
+    onNavigateToLogin: () -> Unit = {},
+    onRegisterSuccess: () -> Unit = {}
 ) {
     //Autht
-    val firebaseAuthService = remember { FirebaseAuthService() }
-    val scope = rememberCoroutineScope()
-    //
+//    val firebaseAuthService = remember { FirebaseAuthService() }
+//    val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val isLoading by authViewModel.isLoading.collectAsState()
+    //
+//    val context = LocalContext.current
+
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -199,7 +206,9 @@ fun RegisterScreen(
 
                         password != confirmPassword -> {
                             Toast.makeText(
-                                context, "Las contraseñas no coinciden", Toast.LENGTH_SHORT
+                                context,
+                                "Las contraseñas no coinciden",
+                                Toast.LENGTH_SHORT
                             ).show()
                         }
 
@@ -211,13 +220,8 @@ fun RegisterScreen(
                             ).show()
                         }
 
-//                        else -> {
-//                            onRegisterSuccess()
-//                        }
                         else -> {
-                            scope.launch {
-                                val result =
-                                    firebaseAuthService.registerUser(fullName, email, password)
+                            authViewModel.register(fullName, email, password) { result ->
                                 if (result.isSuccess) {
                                     Toast.makeText(
                                         context,
@@ -236,6 +240,7 @@ fun RegisterScreen(
                         }
                     }
                 },
+                enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
@@ -244,45 +249,55 @@ fun RegisterScreen(
                 ),
                 shape = MaterialTheme.shapes.medium
             ) {
-                Text(
-                    text = "Registrarse",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "¿Ya tienes cuenta? ", color = Color.Gray, fontSize = 14.sp
-                )
-                TextButton(
-                    onClick = { onNavigateToLogin() },
-                    contentPadding = PaddingValues(0.dp),
-                    modifier = Modifier.offset(x = (-8).dp)
-                ) {
+                if (isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
                     Text(
-                        text = "  Inicia sesión",
-                        color = Color(0xFF5CD6C8),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
+                        "Registrarse",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
                     )
                 }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "¿Ya tienes cuenta? ", color = Color.Gray, fontSize = 14.sp
+            )
+            TextButton(
+                onClick = { onNavigateToLogin() },
+                contentPadding = PaddingValues(0.dp),
+                modifier = Modifier.offset(x = (-8).dp)
+            ) {
+                Text(
+                    text = "  Inicia sesión",
+                    color = Color(0xFF5CD6C8),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun RegisterScreenPreview() {
     NutriChefTheme {
-        RegisterScreen()
+        val fakeViewModel: AuthViewModel = viewModel()
+        RegisterScreen(
+            authViewModel = fakeViewModel,
+            onNavigateToLogin = {},
+            onRegisterSuccess = {}
+        )
     }
 }

@@ -9,43 +9,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import androidx.navigation.NavController
+import com.mich.nutrichef.data.remote.firebase.AuthState
+import com.mich.nutrichef.data.remote.firebase.AuthViewModel
+import com.mich.nutrichef.data.remote.firebase.UserViewModel
 
 @Composable
 fun PerfilScreen(
+    authViewModel: AuthViewModel,
+    userViewModel: UserViewModel,
     onLogout: () -> Unit
 ) {
-    var currentUser by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
-
-    DisposableEffect(Unit) {
-        val authListener = FirebaseAuth.AuthStateListener { auth ->
-            currentUser = auth.currentUser
-            Log.d("PERFILLLL", "Auth listener - currentUser: $currentUser")
-            Log.d("PERFILLLL", "Auth listener - email: ${currentUser?.email}")
-        }
-
-        FirebaseAuth.getInstance().addAuthStateListener(authListener)
-
-        onDispose {
-            FirebaseAuth.getInstance().removeAuthStateListener(authListener)
-        }
-    }
+    val authState by authViewModel.authState.collectAsState()
+    val userName by userViewModel.userName.collectAsState()
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
     ) {
-        when {
-            currentUser == null -> {
+        when (authState) {
+            is AuthState.Unauthenticated -> {
                 LaunchedEffect(Unit) {
                     onLogout()
                 }
                 CircularProgressIndicator()
             }
 
-            else -> {
-                val nombre = currentUser?.displayName?.takeIf { it.isNotBlank() }
-                    ?: currentUser?.email
-                    ?: "Usuario"
+            is AuthState.Authenticated -> {
+                val user = (authState as AuthState.Authenticated).user
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -53,13 +43,11 @@ fun PerfilScreen(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
-                        text = "Bienvenido, $nombre",
+                        text = "Bienvenido, $userName",
                         style = MaterialTheme.typography.headlineMedium
                     )
 
-                    Button(
-                        onClick = onLogout
-                    ) {
+                    Button(onClick = onLogout) {
                         Text("Cerrar Sesión")
                     }
 
@@ -69,12 +57,20 @@ fun PerfilScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text("Debug Info:", style = MaterialTheme.typography.labelLarge)
-                            Text("UID: ${currentUser?.uid}")
-                            Text("Email: ${currentUser?.email}")
-                            Text("DisplayName: ${currentUser?.displayName}")
+                            Text("UID: ${user.uid}")
+                            Text("Email: ${user.email}")
+                            Text("Nombre: $userName")
                         }
                     }
                 }
+            }
+
+            AuthState.Loading -> {
+                CircularProgressIndicator()
+            }
+
+            is AuthState.Error -> {
+                Text("Error: ${(authState as AuthState.Error).message}")
             }
         }
     }

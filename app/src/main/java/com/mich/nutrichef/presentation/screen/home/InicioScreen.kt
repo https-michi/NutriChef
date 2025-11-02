@@ -21,16 +21,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.mich.nutrichef.data.remote.firebase.AuthViewModel
 import com.mich.nutrichef.data.remote.firebase.PlatoViewModel
+import com.mich.nutrichef.data.remote.firebase.UserViewModel
 import com.mich.nutrichef.data.remote.firebase.plato.Plato
 
 @Composable
 fun InicioScreen(
+    authViewModel: AuthViewModel,
+    userViewModel: UserViewModel = viewModel(),
     platoViewModel: PlatoViewModel = viewModel()
 ) {
     val platos by platoViewModel.platos.collectAsState()
     val isLoading by platoViewModel.isLoading.collectAsState()
-    val currentUser = remember { "José" }
+    val userName by userViewModel.userName.collectAsState()
 
     LaunchedEffect(Unit) {
         platoViewModel.cargarPlatos()
@@ -54,7 +58,7 @@ fun InicioScreen(
                         .padding(20.dp)
                 ) {
                     Text(
-                        text = "Hola, $currentUser 👋",
+                        text = "Hola, $userName  👋",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF2D3748)
@@ -326,19 +330,3 @@ fun PlatoCard(
         }
     }
 }
-
-//@Composable
-//fun InicioScreen(
-//    viewModel: PlatoViewModel = viewModel()
-//) {
-//    Box(
-//        contentAlignment = Alignment.Center,
-//        modifier = Modifier.fillMaxSize()
-//    ) {
-//        Button(onClick = {
-//            viewModel.agregarEjemplo()
-//        }) {
-//            Text("Agregar Plato de Ejemplo ")
-//        }
-//    }
-//}

@@ -19,18 +19,21 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mich.nutrichef.R
+import com.mich.nutrichef.data.remote.firebase.AuthViewModel
 import com.mich.nutrichef.data.remote.firebase.FirebaseAuthService
 import com.mich.nutrichef.ui.theme.NutriChefTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
+    authViewModel: AuthViewModel,
     onNavigateToRegister: () -> Unit = {},
     onLoginSuccess: () -> Unit = {}
 ) {
-    val firebaseAuthService = remember { FirebaseAuthService() }
-    val scope = rememberCoroutineScope()
+//    val firebaseAuthService = remember { FirebaseAuthService() }
+//    val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var isLoading by remember { mutableStateOf(false) }
     var showResetPasswordDialog by remember { mutableStateOf(false) }
@@ -177,19 +180,12 @@ fun LoginScreen(
                 onClick = {
                     when {
                         email.isEmpty() || password.isEmpty() -> {
-                            Toast.makeText(
-                                context,
-                                "Completa todos los campos",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(context, "Completa todos los campos", Toast.LENGTH_SHORT)
+                                .show()
                         }
 
                         else -> {
-                            isLoading = true
-                            scope.launch {
-                                val result = firebaseAuthService.loginUser(email, password)
-                                isLoading = false
-
+                            authViewModel.login(email, password) { result ->
                                 if (result.isSuccess) {
                                     Toast.makeText(
                                         context,
@@ -199,15 +195,9 @@ fun LoginScreen(
                                     onLoginSuccess()
                                 } else {
                                     val errorMessage = when (result.exceptionOrNull()?.message) {
-                                        "The email address is badly formatted." ->
-                                            "Formato de email inválido"
-
-                                        "The password is invalid or the user does not have a password." ->
-                                            "Contraseña incorrecta"
-
-                                        "There is no user record corresponding to this identifier. The user may have been deleted." ->
-                                            "Usuario no encontrado"
-
+                                        "The email address is badly formatted." -> "Formato de email inválido"
+                                        "The password is invalid or the user does not have a password." -> "Contraseña incorrecta"
+                                        "There is no user record corresponding to this identifier. The user may have been deleted." -> "Usuario no encontrado"
                                         else -> "Error: ${result.exceptionOrNull()?.message}"
                                     }
                                     Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
@@ -216,14 +206,7 @@ fun LoginScreen(
                         }
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF5CD6C8)
-                ),
-                shape = MaterialTheme.shapes.medium,
-                enabled = !isLoading
+                enabled = !isLoading,
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
@@ -319,14 +302,10 @@ fun LoginScreen(
         ResetPasswordDialog(
             onDismiss = { showResetPasswordDialog = false },
             onConfirm = { resetEmail ->
-                scope.launch {
-                    val result = firebaseAuthService.resetPassword(resetEmail)
+                authViewModel.resetPassword(resetEmail) { result ->
                     if (result.isSuccess) {
-                        Toast.makeText(
-                            context,
-                            "Email de recuperación enviado",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(context, "Email de recuperación enviado", Toast.LENGTH_SHORT)
+                            .show()
                     } else {
                         Toast.makeText(
                             context,
@@ -345,7 +324,12 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     NutriChefTheme {
-        LoginScreen()
+        val fakeViewModel: AuthViewModel = viewModel()
+        LoginScreen(
+            authViewModel = fakeViewModel,
+            onNavigateToRegister = {},
+            onLoginSuccess = {}
+        )
     }
 }
 
