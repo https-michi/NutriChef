@@ -1,4 +1,4 @@
-package com.mich.nutrichef.data.remote.firebase
+package com.mich.nutrichef.data.remote.firebase.user
 
 import java.util.Date
 

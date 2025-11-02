@@ -2,6 +2,7 @@ package com.mich.nutrichef.data.remote.firebase
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mich.nutrichef.data.remote.firebase.user.UserProfile
 import kotlinx.coroutines.tasks.await
 
 class FirebaseAuthService(
