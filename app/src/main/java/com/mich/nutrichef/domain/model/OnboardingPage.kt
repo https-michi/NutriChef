@@ -7,3 +7,4 @@ data class OnboardingPage(
     val descripcion: String,
     val icon: ImageVector
 )
+
