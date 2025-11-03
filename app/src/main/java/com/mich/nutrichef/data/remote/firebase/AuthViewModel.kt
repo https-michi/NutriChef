@@ -50,14 +50,14 @@ class AuthViewModel : ViewModel() {
         auth.removeAuthStateListener(authStateListener)
     }
 
-    fun getCurrentUser(): FirebaseUser? = auth.currentUser
-
-    fun getUserName(): String {
-        val user = auth.currentUser
-        return user?.displayName
-            ?: user?.email?.substringBefore("@")
-            ?: "Usuario"
-    }
+//    fun getCurrentUser(): FirebaseUser? = auth.currentUser
+//
+//    fun getUserName(): String {
+//        val user = auth.currentUser
+//        return user?.displayName
+//            ?: user?.email?.substringBefore("@")
+//            ?: "Usuario"
+//    }
 
     fun login(email: String, password: String, onResult: (Result<Unit>) -> Unit) {
         viewModelScope.launch {
