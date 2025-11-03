@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mich.nutrichef.data.remote.firebase.AuthViewModel
 import com.mich.nutrichef.data.remote.firebase.PlatoViewModel
@@ -48,14 +49,26 @@ fun MainScreen(
     val navController = rememberNavController()
     val platoSeleccionado by platoViewModel.platoSeleccionado.collectAsState()
 
+    //por mejorar - no me gusta
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     LaunchedEffect(platoSeleccionado) {
         if (platoSeleccionado != null) {
             navController.navigate("detalle_plato")
         }
     }
+    val shouldShowBottomBar = currentRoute != "detalle_plato"
 
+
+//    Scaffold(
+//        bottomBar = { BottomNavigationBar(navController) }
     Scaffold(
-        bottomBar = { BottomNavigationBar(navController) }
+        bottomBar = {
+            if (shouldShowBottomBar) {
+                BottomNavigationBar(navController)
+            }
+        }
     ) { innerPadding ->
         NavHost(
             navController = navController,
