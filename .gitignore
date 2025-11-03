@@ -66,6 +66,9 @@ crashlytics-build.properties
 # Firebase config 
 app/google-services.json
 
+#
+*.hprof
+
 # ========================================
 # END
 # ========================================
