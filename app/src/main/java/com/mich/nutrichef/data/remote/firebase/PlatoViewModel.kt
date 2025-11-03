@@ -20,6 +20,9 @@ class PlatoViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _platoSeleccionado = MutableStateFlow<Plato?>(null)
+    val platoSeleccionado: StateFlow<Plato?> = _platoSeleccionado.asStateFlow()
+
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
@@ -29,6 +32,37 @@ class PlatoViewModel : ViewModel() {
             try {
                 val resultado = service.obtenerPlatos()
                 _platos.value = resultado
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun seleccionarPlato(plato: Plato) {
+        _platoSeleccionado.value = plato
+        viewModelScope.launch {
+            service.incrementarVistas(plato.idPlato)
+        }
+    }
+
+    fun limpiarPlatoSeleccionado() {
+        _platoSeleccionado.value = null
+    }
+
+
+    fun cargarPlatoPorId(idPlato: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val plato = service.obtenerPlatoPorId(idPlato)
+                _platoSeleccionado.value = plato
+
+                // Incrementar vistas
+                if (plato != null) {
+                    service.incrementarVistas(idPlato)
+                }
             } catch (e: Exception) {
                 _error.value = e.message
             } finally {

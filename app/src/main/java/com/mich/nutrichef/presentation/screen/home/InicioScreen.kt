@@ -30,7 +30,8 @@ import com.mich.nutrichef.data.remote.firebase.plato.Plato
 fun InicioScreen(
     authViewModel: AuthViewModel,
     userViewModel: UserViewModel = viewModel(),
-    platoViewModel: PlatoViewModel = viewModel()
+    platoViewModel: PlatoViewModel = viewModel(),
+    onNavigateToDetalle: (Plato) -> Unit
 ) {
     val platos by platoViewModel.platos.collectAsState()
     val isLoading by platoViewModel.isLoading.collectAsState()
@@ -159,6 +160,10 @@ fun InicioScreen(
                             PlatoCard(
                                 plato = plato,
                                 modifier = Modifier.weight(1f),
+                                onCardClick = {
+                                    platoViewModel.seleccionarPlato(plato)
+                                    onNavigateToDetalle(plato)
+                                },
                                 onFavoriteClick = { /* TODO */ }
                             )
                         }
@@ -226,9 +231,11 @@ fun TipDelDiaCard() {
 fun PlatoCard(
     plato: Plato,
     modifier: Modifier = Modifier,
+    onCardClick: () -> Unit = {},
     onFavoriteClick: () -> Unit
 ) {
     Card(
+        onClick = onCardClick,
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
