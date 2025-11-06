@@ -1,5 +1,6 @@
 package com.mich.nutrichef.presentation.screen.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -11,6 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
@@ -34,44 +37,8 @@ fun DetallePlatoScreen(
     onFavoriteClick: () -> Unit,
     isFavorite: Boolean = false
 ) {
-    var showIngredientes by remember { mutableStateOf(true) }
-
     Scaffold(
-        contentWindowInsets = WindowInsets(0),
-        bottomBar = {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shadowElevation = 8.dp,
-                color = Color.White
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    OutlinedButton(
-                        onClick = { /* TODO: Guardar */ },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Color(0xFF5CD6C8)
-                        )
-                    ) {
-                        Text("Guardar")
-                    }
-
-                    Button(
-                        onClick = { /* TODO: Ver proceso */ },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF5CD6C8)
-                        )
-                    ) {
-                        Text("Ver proceso")
-                    }
-                }
-            }
-        }
+        contentWindowInsets = WindowInsets(0)
     ) { paddingValues ->
 
         Box(modifier = Modifier.fillMaxSize()) {
@@ -81,7 +48,7 @@ fun DetallePlatoScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                // Imagen principal
+
                 item {
                     Box(
                         modifier = Modifier
@@ -97,8 +64,6 @@ fun DetallePlatoScreen(
                     }
                 }
 
-
-                // Cartita sobrepuesta
                 item {
                     Box(
                         modifier = Modifier
@@ -163,16 +128,13 @@ fun DetallePlatoScreen(
                             }
                         }
                     }
-//    Spacer(modifier = Modifier.height(8.dp))
                 }
 
-
-                // Información nutricional
                 item {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 0.dp),
+                            .padding(horizontal = 20.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
                         elevation = CardDefaults.cardElevation(2.dp)
@@ -215,16 +177,12 @@ fun DetallePlatoScreen(
                         }
                     }
                 }
-                // Control de porciones
+
                 item {
                     var porciones by remember { mutableStateOf(plato.porcionesBase) }
-
-                    // El costo total del plato base
                     val costoBase = plato.presupuesto.costoTotal ?: 0.0
-
                     val precioPorPorcion =
                         if (plato.porcionesBase > 0) costoBase / plato.porcionesBase else 0.0
-
                     val precioTotal = precioPorPorcion * porciones
 
                     Card(
@@ -235,9 +193,7 @@ fun DetallePlatoScreen(
                         colors = CardDefaults.cardColors(containerColor = Color.White),
                         elevation = CardDefaults.cardElevation(2.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
-                        ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -250,9 +206,7 @@ fun DetallePlatoScreen(
                                     color = Color(0xFF374151)
                                 )
 
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     IconButton(
                                         onClick = { if (porciones > 1) porciones-- },
                                         modifier = Modifier
@@ -261,7 +215,7 @@ fun DetallePlatoScreen(
                                             .background(Color(0xFFF3F4F6))
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Default.Remove,
+                                            Icons.Default.Remove,
                                             contentDescription = "Disminuir",
                                             tint = Color(0xFF4B5563)
                                         )
@@ -283,7 +237,7 @@ fun DetallePlatoScreen(
                                             .background(Color(0xFFDCFCE7))
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Default.Add,
+                                            Icons.Default.Add,
                                             contentDescription = "Aumentar",
                                             tint = Color(0xFF047857)
                                         )
@@ -293,14 +247,11 @@ fun DetallePlatoScreen(
 
                             Spacer(modifier = Modifier.height(10.dp))
 
-                            // Mostrar precios
                             Text(
                                 text = "Precio por porción: S/. ${"%.2f".format(precioPorPorcion)}",
                                 fontSize = 13.sp,
-                                color = Color(0xFF6B7280),
-                                fontWeight = FontWeight.Medium
+                                color = Color(0xFF6B7280)
                             )
-
                             Text(
                                 text = "Costo total estimado: S/. ${"%.2f".format(precioTotal)}",
                                 fontSize = 13.sp,
@@ -311,101 +262,99 @@ fun DetallePlatoScreen(
                     }
                 }
 
-
-                // Tabs
                 item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 12.dp)
-                    ) {
-                        TextButton(
-                            onClick = { showIngredientes = true },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = if (showIngredientes) Color(0xFF5CD6C8) else Color.Gray
-                            )
-                        ) {
-                            Text(
-                                text = "Ingredientes",
-                                fontWeight = if (showIngredientes) FontWeight.Bold else FontWeight.Normal
-                            )
-                        }
-                        TextButton(
-                            onClick = { showIngredientes = false },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = if (!showIngredientes) Color(0xFF5CD6C8) else Color.Gray
-                            )
-                        ) {
-                            Text(
-                                text = "Preparación",
-                                fontWeight = if (!showIngredientes) FontWeight.Bold else FontWeight.Normal
-                            )
-                        }
-                    }
+                    Text(
+                        text = "Ingredientes",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2D3748),
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+                    )
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = 20.dp),
                         color = Color(0xFFE5E7EB)
                     )
                 }
 
-                if (showIngredientes) {
-                    items(plato.ingredientes) { ingrediente ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 20.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(6.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFF5CD6C8))
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = "${ingrediente.cantidadBase.toInt()}${ingrediente.unidad} de ${ingrediente.nombre}",
-                                fontSize = 14.sp,
-                                color = Color(0xFF2D3748)
-                            )
-                        }
+                items(plato.ingredientes) { ingrediente ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 6.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFFF9FAFB))
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = ingrediente.nombre,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp,
+                            color = Color(0xFF2D3748)
+                        )
+                        Text(
+                            text = "${ingrediente.cantidadBase.toInt()} ${ingrediente.unidad}",
+                            fontSize = 13.sp,
+                            color = Color(0xFF4A5568)
+                        )
                     }
-                } else {
-                    items(plato.pasos.withIndex().toList()) { (index, paso) ->
-                        Row(
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = { /* TODO: Guardar */ },
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 20.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.Top
-                        ) {
-                            Surface(
-                                shape = CircleShape,
-                                color = Color(0xFF5CD6C8),
-                                modifier = Modifier.size(28.dp)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text(
-                                        text = "${index + 1}",
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = paso,
-                                fontSize = 14.sp,
-                                color = Color(0xFF2D3748),
-                                lineHeight = 20.sp,
-                                modifier = Modifier.weight(1f)
+                                .weight(1f)
+                                .height(50.dp),
+                            border = BorderStroke(1.5.dp, Color(0xFF5CD6C8)),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = Color(0xFF047857)
                             )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FavoriteBorder,
+                                contentDescription = "Guardar",
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Guardar", fontWeight = FontWeight.SemiBold)
+                        }
+
+                        Button(
+                            onClick = { /* TODO: Ver proceso */ },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(50.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF5CD6C8),
+                                contentColor = Color.White
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 4.dp,
+                                pressedElevation = 8.dp
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = "Ver proceso",
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Ver proceso", fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
-                item { Spacer(modifier = Modifier.height(24.dp)) }
             }
 
             Row(
@@ -424,10 +373,9 @@ fun DetallePlatoScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            Icons.Default.ArrowBack,
                             contentDescription = "Volver",
-                            tint = Color(0xFF01050E),
-                            modifier = Modifier.size(16.dp)
+                            tint = Color(0xFF01050E)
                         )
                     }
                 }
@@ -443,8 +391,7 @@ fun DetallePlatoScreen(
                         Icon(
                             imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                             contentDescription = "Favorito",
-                            tint = if (isFavorite) Color(0xFFEF4444) else Color(0xFF2D3748),
-                            modifier = Modifier.size(16.dp)
+                            tint = if (isFavorite) Color(0xFFEF4444) else Color(0xFF2D3748)
                         )
                     }
                 }
@@ -452,6 +399,7 @@ fun DetallePlatoScreen(
         }
     }
 }
+
 
 @Composable
 fun InfoChip(icon: String, text: String) {
