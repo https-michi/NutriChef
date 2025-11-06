@@ -35,6 +35,7 @@ fun DetallePlatoScreen(
     plato: Plato,
     onBackClick: () -> Unit,
     onFavoriteClick: () -> Unit,
+    onVerProcesoClick: () -> Unit,
     isFavorite: Boolean = false
 ) {
     Scaffold(
@@ -331,7 +332,7 @@ fun DetallePlatoScreen(
                         }
 
                         Button(
-                            onClick = { /* TODO: Ver proceso */ },
+                            onClick = onVerProcesoClick,
                             modifier = Modifier
                                 .weight(1f)
                                 .height(50.dp),

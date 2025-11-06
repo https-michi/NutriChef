@@ -98,7 +98,9 @@ private fun MainScreenContent(
         }
     }
 
-    val shouldShowBottomBar = currentRoute != "detalle_plato"
+//    val shouldShowBottomBar = currentRoute != "detalle_plato"
+    val shouldShowBottomBar = currentRoute !in listOf("detalle_plato", "pasos_plato")
+
 
     Scaffold(
         bottomBar = {
@@ -145,10 +147,25 @@ private fun MainScreenContent(
                         },
                         onFavoriteClick = {
                             // TODO: Implementar favoritos
+                        },
+                        onVerProcesoClick = {
+                            navController.navigate("pasos_plato")
                         }
                     )
                 }
             }
+
+            composable("pasos_plato") {
+                platoSeleccionado?.let { plato ->
+                    PasosPlatoScreen(
+                        plato = plato,
+                        onBackClick = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+            }
+
         }
     }
 }
