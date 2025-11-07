@@ -33,5 +33,49 @@ class TipsViewModel : ViewModel() {
             }
         }
     }
+//    fun poblarDatosIniciales() {
+//        viewModelScope.launch {
+//            poblarTipsIniciales()
+////            cargarTips()
+//        }
+//    }
+    // Función auxiliar para poblar datos iniciales (ejecutar una sola vez)
+    suspend fun poblarTipsIniciales() {
+        val service = FirebaseTipsService()
+        val tipsIniciales = listOf(
+            TipNutricional(
+                titulo = "Hidratación constante",
+                categoria = "Hidratación",
+                descripcion = "Bebe al menos 8 vasos de agua al día para mantener tu cuerpo hidratado y favorecer la digestión.",
+                iconoNombre = "water",
+                orden = 1
+            ),
+            TipNutricional(
+                titulo = "Come más proteína",
+                categoria = "Nutrición",
+                descripcion = "Incluye proteína en cada comida para mantener la masa muscular y sentirte satisfecho por más tiempo.",
+                iconoNombre = "restaurant",
+                orden = 2
+            ),
+            TipNutricional(
+                titulo = "Planifica tus comidas",
+                categoria = "Organización",
+                descripcion = "Preparar tus comidas con anticipación te ayuda a mantener una alimentación saludable y ahorrar tiempo.",
+                iconoNombre = "calendar",
+                orden = 3
+            ),
+            TipNutricional(
+                titulo = "Variedad de colores",
+                categoria = "Nutrición",
+                descripcion = "Come frutas y verduras de diferentes colores para obtener una amplia gama de nutrientes.",
+                iconoNombre = "palette",
+                orden = 4
+            )
+        )
+
+        tipsIniciales.forEach { tip ->
+            service.agregarTip(tip)
+        }
+    }
 
 }

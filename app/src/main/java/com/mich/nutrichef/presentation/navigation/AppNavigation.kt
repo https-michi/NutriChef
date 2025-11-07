@@ -71,23 +71,26 @@ private fun NavGraphBuilder.authGraph(
                 authViewModel = authViewModel,
                 onNavigateToLogin = { navController.navigate("login") },
                 onRegisterSuccess = {
-                    navController.navigate("complete_profile") {
+                    navController.navigate("main") {
                         popUpTo("auth") { inclusive = true }
                     }
+//                    navController.navigate("complete_profile") {
+//                        popUpTo("auth") { inclusive = true }
+//                    }
                 }
             )
         }
 
-        composable("complete_profile") {
-            BodyDataScreen(
-                authViewModel = authViewModel,
-                onContinue = { weight, height ->
-                    navController.navigate("main") {
-                        popUpTo("complete_profile") { inclusive = true }
-                    }
-                }
-            )
-        }
+//        composable("complete_profile") {
+//            BodyDataScreen(
+//                authViewModel = authViewModel,
+//                onContinue = { weight, height ->
+//                    navController.navigate("main") {
+//                        popUpTo("complete_profile") { inclusive = true }
+//                    }
+//                }
+//            )
+//        }
     }
 }
 

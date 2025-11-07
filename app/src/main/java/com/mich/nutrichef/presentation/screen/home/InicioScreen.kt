@@ -35,7 +35,9 @@ fun InicioScreen(
 ) {
     val platos by platoViewModel.platos.collectAsState()
     val isLoading by platoViewModel.isLoading.collectAsState()
-    val userName by userViewModel.userName.collectAsState()
+//    val userName by userViewModel.userName.collectAsState()
+    val userProfile by userViewModel.userProfile.collectAsState()
+
 
     LaunchedEffect(Unit) {
         platoViewModel.cargarPlatos()
@@ -50,7 +52,6 @@ fun InicioScreen(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 80.dp)
         ) {
-            // Header
             item {
                 Column(
                     modifier = Modifier
@@ -59,7 +60,7 @@ fun InicioScreen(
                         .padding(20.dp)
                 ) {
                     Text(
-                        text = "Hola, $userName  👋",
+                        text = "Hola, ${userProfile.nombre?.ifEmpty { "Usuario" }} 👋",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF2D3748)
@@ -72,7 +73,6 @@ fun InicioScreen(
                 }
             }
 
-            // Buscador
             item {
                 OutlinedTextField(
                     value = "",
@@ -98,12 +98,10 @@ fun InicioScreen(
                 )
             }
 
-            // Tip del día
             item {
                 TipDelDiaCard()
             }
 
-            // Platos populares header
             item {
                 Row(
                     modifier = Modifier
@@ -135,7 +133,6 @@ fun InicioScreen(
                 }
             }
 
-            // Loading o lista de platos
             if (isLoading) {
                 item {
                     Box(
@@ -148,7 +145,6 @@ fun InicioScreen(
                     }
                 }
             } else {
-                // Grid de platos (2 columnas)
                 items(platos.chunked(2)) { platosPair ->
                     Row(
                         modifier = Modifier
@@ -167,7 +163,6 @@ fun InicioScreen(
                                 onFavoriteClick = { /* TODO */ }
                             )
                         }
-                        // Si es impar, agregar espacio vacío
                         if (platosPair.size == 1) {
                             Spacer(modifier = Modifier.weight(1f))
                         }
@@ -242,7 +237,6 @@ fun PlatoCard(
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column {
-            // Imagen con overlay de calorías y favorito
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -254,8 +248,6 @@ fun PlatoCard(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-
-                // Overlay oscuro sutil
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -269,7 +261,6 @@ fun PlatoCard(
                         )
                 )
 
-                // Badge de calorías
                 Surface(
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -286,7 +277,6 @@ fun PlatoCard(
                     )
                 }
 
-                // Botón de favorito
                 IconButton(
                     onClick = onFavoriteClick,
                     modifier = Modifier
@@ -301,7 +291,6 @@ fun PlatoCard(
                 }
             }
 
-            // Información del plato
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

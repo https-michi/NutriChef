@@ -55,6 +55,8 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation(libs.androidx.palette.ktx)
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.36.0")
+    implementation(libs.androidx.compose.foundation)
 
     //
     testImplementation(libs.junit)

@@ -22,9 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mich.nutrichef.R
 import com.mich.nutrichef.data.remote.firebase.AuthViewModel
-import com.mich.nutrichef.data.remote.firebase.FirebaseAuthService
 import com.mich.nutrichef.ui.theme.NutriChefTheme
-import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
@@ -52,7 +50,6 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Logo circular
             Box(
                 modifier = Modifier
                     .size(100.dp)
@@ -185,7 +182,9 @@ fun LoginScreen(
                         }
 
                         else -> {
+                            isLoading = true
                             authViewModel.login(email, password) { result ->
+                                isLoading = false
                                 if (result.isSuccess) {
                                     Toast.makeText(
                                         context,
@@ -207,6 +206,17 @@ fun LoginScreen(
                     }
                 },
                 enabled = !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(55.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF5CD6C8),
+                    contentColor = Color.White
+                ),
+                shape = MaterialTheme.shapes.medium,
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 4.dp
+                )
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
@@ -217,11 +227,11 @@ fun LoginScreen(
                     Text(
                         text = "Iniciar sesión",
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
+
 
             Spacer(modifier = Modifier.height(24.dp))
 
