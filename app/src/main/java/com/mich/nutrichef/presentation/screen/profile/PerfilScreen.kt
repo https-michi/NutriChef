@@ -1,82 +1,3 @@
-//package com.mich.nutrichef.presentation.screen.profile
-//
-//import android.util.Log
-//import androidx.compose.foundation.layout.*
-//import androidx.compose.material3.*
-//import androidx.compose.runtime.*
-//import androidx.compose.ui.Alignment
-//import androidx.compose.ui.Modifier
-//import androidx.compose.ui.unit.dp
-//import com.google.firebase.auth.FirebaseAuth
-//import androidx.navigation.NavController
-//import com.mich.nutrichef.data.remote.firebase.AuthState
-//import com.mich.nutrichef.data.remote.firebase.AuthViewModel
-//import com.mich.nutrichef.data.remote.firebase.UserViewModel
-//
-//@Composable
-//fun PerfilScreen(
-//    authViewModel: AuthViewModel,
-//    userViewModel: UserViewModel,
-//    onLogout: () -> Unit
-//) {
-//    val authState by authViewModel.authState.collectAsState()
-//    val userName by userViewModel.userName.collectAsState()
-//
-//    Box(
-//        contentAlignment = Alignment.Center,
-//        modifier = Modifier.fillMaxSize()
-//    ) {
-//        when (authState) {
-//            is AuthState.Unauthenticated -> {
-//                LaunchedEffect(Unit) {
-//                    onLogout()
-//                }
-//                CircularProgressIndicator()
-//            }
-//
-//            is AuthState.Authenticated -> {
-//                val user = (authState as AuthState.Authenticated).user
-//
-//                Column(
-//                    horizontalAlignment = Alignment.CenterHorizontally,
-//                    verticalArrangement = Arrangement.spacedBy(16.dp),
-//                    modifier = Modifier.padding(16.dp)
-//                ) {
-//                    Text(
-//                        text = "Bienvenido, $userName",
-//                        style = MaterialTheme.typography.headlineMedium
-//                    )
-//
-//                    Button(onClick = onLogout) {
-//                        Text("Cerrar Sesión")
-//                    }
-//
-//                    Card(modifier = Modifier.fillMaxWidth()) {
-//                        Column(
-//                            modifier = Modifier.padding(16.dp),
-//                            verticalArrangement = Arrangement.spacedBy(8.dp)
-//                        ) {
-//                            Text("Debug Info:", style = MaterialTheme.typography.labelLarge)
-//                            Text("UID: ${user.uid}")
-//                            Text("Email: ${user.email}")
-//                            Text("Nombre: $userName")
-//                        }
-//                    }
-//                }
-//            }
-//
-//            AuthState.Loading -> {
-//                CircularProgressIndicator()
-//            }
-//
-//            is AuthState.Error -> {
-//                Text("Error: ${(authState as AuthState.Error).message}")
-//            }
-//        }
-//    }
-//}
-
-
 package com.mich.nutrichef.presentation.screen.profile
 
 import androidx.compose.foundation.background
@@ -112,7 +33,7 @@ fun PerfilScreen(
     onLogout: () -> Unit
 ) {
     val authState by authViewModel.authState.collectAsState()
-    val userName by userViewModel.userName.collectAsState()
+    val userProfile by userViewModel.userProfile.collectAsState()
 
     var peso by remember { mutableStateOf("") }
     var altura by remember { mutableStateOf("") }
@@ -120,21 +41,27 @@ fun PerfilScreen(
     var isEditingPeso by remember { mutableStateOf(false) }
     var isEditingAltura by remember { mutableStateOf(false) }
 
-    // Colores personalizados
+    LaunchedEffect(userProfile) {
+        peso = userProfile.peso?.toString() ?: "0"
+        altura = userProfile.altura?.toString() ?: "0"
+
+        if (userProfile.peso != null && userProfile.altura != null &&
+            userProfile.peso!! > 0 && userProfile.altura!! > 0
+        ) {
+            calcularIMC(peso, altura) { resultado ->
+                imc = resultado
+            }
+        } else {
+            imc = null
+        }
+    }
+
     val mintGreen = Color(0xFF5CDAB8)
-    val lightMint = Color(0xFF8DE8CB)
     val softGray = Color(0xFFF5F5F5)
     val darkGray = Color(0xFF666666)
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Perfil", fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
-                )
-            )
-        }
+        contentWindowInsets = WindowInsets(0)
     ) { padding ->
         Box(
             modifier = Modifier
@@ -158,23 +85,6 @@ fun PerfilScreen(
                 is AuthState.Authenticated -> {
                     val user = (authState as AuthState.Authenticated).user
 
-                    // Cargar datos del usuario desde Firestore
-                    LaunchedEffect(user.uid) {
-                        // Aquí obtienes los datos desde tu UserViewModel
-                        // Por ejemplo, si tienes funciones como getUserPeso() y getUserAltura()
-                        // peso = userViewModel.getUserPeso() ?: ""
-                        // altura = userViewModel.getUserAltura() ?: ""
-
-                        // Por ahora, valores de ejemplo (reemplázalos con tu lógica):
-                        peso = "70"
-                        altura = "170"
-
-                        // Calcular IMC automáticamente
-                        calcularIMC(peso, altura) { resultado ->
-                            imc = resultado
-                        }
-                    }
-
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -182,7 +92,6 @@ fun PerfilScreen(
                             .padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Card de perfil principal
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -200,7 +109,6 @@ fun PerfilScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                // Avatar con iniciales
                                 Box(
                                     modifier = Modifier
                                         .size(60.dp)
@@ -208,8 +116,9 @@ fun PerfilScreen(
                                         .background(Color.White.copy(alpha = 0.3f)),
                                     contentAlignment = Alignment.Center
                                 ) {
+                                    val nombre = userProfile.nombre ?: "Usuario"
                                     Text(
-                                        text = userName.firstOrNull()?.uppercase() ?: "U",
+                                        text = nombre.firstOrNull()?.uppercase() ?: "U",
                                         fontSize = 28.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White
@@ -218,15 +127,13 @@ fun PerfilScreen(
 
                                 Spacer(modifier = Modifier.height(12.dp))
 
-                                // Nombre
                                 Text(
-                                    text = userName,
+                                    text = userProfile.nombre ?: "Usuario",
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )
 
-                                // Email
                                 Text(
                                     text = user.email ?: "",
                                     fontSize = 14.sp,
@@ -235,7 +142,6 @@ fun PerfilScreen(
                             }
                         }
 
-                        // Información Física y IMC Card
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
@@ -258,7 +164,6 @@ fun PerfilScreen(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                // Peso
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -286,11 +191,14 @@ fun PerfilScreen(
                                                 )
                                             )
                                         } else {
+                                            val pesoValor = peso.toDoubleOrNull() ?: 0.0
                                             Text(
-                                                text = if (peso.isNotEmpty()) "$peso kg" else "No registrado",
+                                                text = if (pesoValor > 0) "$peso kg" else "Por completar",
                                                 fontSize = 18.sp,
                                                 fontWeight = FontWeight.Medium,
-                                                color = darkGray
+                                                color = if (pesoValor > 0) darkGray else darkGray.copy(
+                                                    alpha = 0.5f
+                                                )
                                             )
                                         }
                                     }
@@ -298,12 +206,12 @@ fun PerfilScreen(
                                     IconButton(
                                         onClick = {
                                             if (isEditingPeso) {
-                                                // Guardar en Firestore
-                                                // userViewModel.updatePeso(peso.toFloatOrNull() ?: 0f)
-
-                                                // Recalcular IMC
-                                                calcularIMC(peso, altura) { resultado ->
-                                                    imc = resultado
+                                                val pesoDouble = peso.toDoubleOrNull()
+                                                if (pesoDouble != null && pesoDouble > 0) {
+                                                    userViewModel.updatePeso(pesoDouble)
+                                                    calcularIMC(peso, altura) { resultado ->
+                                                        imc = resultado
+                                                    }
                                                 }
                                             }
                                             isEditingPeso = !isEditingPeso
@@ -319,7 +227,6 @@ fun PerfilScreen(
 
                                 Spacer(modifier = Modifier.height(12.dp))
 
-                                // Altura
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -347,11 +254,14 @@ fun PerfilScreen(
                                                 )
                                             )
                                         } else {
+                                            val alturaValor = altura.toDoubleOrNull() ?: 0.0
                                             Text(
-                                                text = if (altura.isNotEmpty()) "$altura cm" else "No registrado",
+                                                text = if (alturaValor > 0) "$altura cm" else "Por completar",
                                                 fontSize = 18.sp,
                                                 fontWeight = FontWeight.Medium,
-                                                color = darkGray
+                                                color = if (alturaValor > 0) darkGray else darkGray.copy(
+                                                    alpha = 0.5f
+                                                )
                                             )
                                         }
                                     }
@@ -359,12 +269,13 @@ fun PerfilScreen(
                                     IconButton(
                                         onClick = {
                                             if (isEditingAltura) {
-                                                // Guardar en Firestore
-                                                // userViewModel.updateAltura(altura.toFloatOrNull() ?: 0f)
-
-                                                // Recalcular IMC
-                                                calcularIMC(peso, altura) { resultado ->
-                                                    imc = resultado
+                                                val alturaDouble = altura.toDoubleOrNull()
+                                                if (alturaDouble != null && alturaDouble > 0) {
+                                                    userViewModel.updateAltura(alturaDouble)
+                                                    // Recalcular IMC
+                                                    calcularIMC(peso, altura) { resultado ->
+                                                        imc = resultado
+                                                    }
                                                 }
                                             }
                                             isEditingAltura = !isEditingAltura
@@ -378,7 +289,6 @@ fun PerfilScreen(
                                     }
                                 }
 
-                                // IMC Resultado
                                 if (imc != null) {
                                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -442,7 +352,6 @@ fun PerfilScreen(
                             }
                         }
 
-                        // Preferencias Nutricionales
                         Text(
                             text = "Gráfico de IMC",
                             fontSize = 16.sp,
@@ -451,7 +360,6 @@ fun PerfilScreen(
                             modifier = Modifier.padding(start = 4.dp)
                         )
 
-                        // Gráfico informativo del IMC
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
@@ -473,7 +381,6 @@ fun PerfilScreen(
                                     modifier = Modifier.padding(bottom = 16.dp)
                                 )
 
-                                // Barra de rangos del IMC
                                 Column(
                                     verticalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
@@ -505,56 +412,9 @@ fun PerfilScreen(
                                         isCurrentRange = imc != null && imc!! >= 30
                                     )
                                 }
-
-                                if (imc != null) {
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
-                                    Spacer(modifier = Modifier.height(16.dp))
-
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Column {
-                                            Text(
-                                                text = "Tu IMC actual",
-                                                fontSize = 13.sp,
-                                                color = darkGray.copy(alpha = 0.7f)
-                                            )
-                                            Text(
-                                                text = String.format("%.1f", imc),
-                                                fontSize = 24.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = getIMCColor(imc!!)
-                                            )
-                                        }
-
-                                        Card(
-                                            colors = CardDefaults.cardColors(
-                                                containerColor = getIMCColor(imc!!)
-                                            ),
-                                            shape = RoundedCornerShape(8.dp)
-                                        ) {
-                                            Text(
-                                                text = getIMCCategory(imc!!),
-                                                modifier = Modifier.padding(
-                                                    horizontal = 12.dp,
-                                                    vertical = 6.dp
-                                                ),
-                                                color = Color.White,
-                                                fontSize = 13.sp,
-                                                fontWeight = FontWeight.Medium
-                                            )
-                                        }
-                                    }
-                                }
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(80.dp))
-
-                        // Botón de cerrar sesión
                         Button(
                             onClick = {
                                 authViewModel.logout()
@@ -621,26 +481,6 @@ fun PerfilScreen(
     }
 }
 
-
-@Composable
-fun StatItem(value: String, label: String) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = value,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            color = Color.White.copy(alpha = 0.9f)
-        )
-    }
-}
-
 @Composable
 fun IMCRangeBar(
     category: String,
@@ -703,33 +543,11 @@ fun IMCRangeBar(
     }
 }
 
-@Composable
-fun PreferenceChip(text: String, modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier.height(40.dp),
-        shape = RoundedCornerShape(20.dp),
-        color = Color(0xFF5CDAB8).copy(alpha = 0.2f)
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = text,
-                fontSize = 13.sp,
-                color = Color(0xFF5CDAB8),
-                fontWeight = FontWeight.Medium
-            )
-        }
-    }
-}
-
-// Funciones auxiliares para el IMC
 fun calcularIMC(peso: String, altura: String, onResult: (Float?) -> Unit) {
     val pesoFloat = peso.toFloatOrNull()
     val alturaFloat = altura.toFloatOrNull()
 
-    if (pesoFloat != null && alturaFloat != null && alturaFloat > 0) {
+    if (pesoFloat != null && alturaFloat != null && alturaFloat > 0 && pesoFloat > 0) {
         val alturaMetros = alturaFloat / 100
         val imcCalculado = pesoFloat / (alturaMetros * alturaMetros)
         onResult(imcCalculado)
@@ -749,10 +567,10 @@ fun getIMCCategory(imc: Float): String {
 
 fun getIMCColor(imc: Float): Color {
     return when {
-        imc < 18.5 -> Color(0xFF2196F3) // Azul
-        imc < 25 -> Color(0xFF4CAF50) // Verde
-        imc < 30 -> Color(0xFFFFA726) // Naranja
-        else -> Color(0xFFE53935) // Rojo
+        imc < 18.5 -> Color(0xFF2196F3)
+        imc < 25 -> Color(0xFF4CAF50)
+        imc < 30 -> Color(0xFFFFA726)
+        else -> Color(0xFFE53935)
     }
 }
 
@@ -764,6 +582,3 @@ fun getIMCDescription(imc: Float): String {
         else -> "Te recomendamos consultar con un profesional de la salud."
     }
 }
-
-
-
